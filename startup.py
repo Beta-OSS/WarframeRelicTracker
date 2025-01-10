@@ -37,28 +37,12 @@ def fetch_and_parse(url, xpath_expression):
 
 def scrapeForRelics(url, unvaultedXPath, vaultedXPath):
     relics = {}
-    response = requests.get(url)
-    html_content = response.content
-
-    # Parse the HTML content
-    tree = html.fromstring(html_content)
-
-    # Find elements using XPath
-    elements = tree.xpath(unvaultedXPath)
-    
-    extension = '/td/ul/li/span/a/span'
-    path = unvaultedXPath + extension
-    unvaultedTexts = fetch_and_parse(url, unvaultedXPath)
-    vaultedTexts = fetch_and_parse(url, vaultedXPath)
-    for text in unvaultedTexts:
-        #replace \xao (space) character with space
-        text = text.replace(u'\xa0', u' ')
-        #split to list when new line
-        text = text.splitlines()
-        #remove empty list elements
-        text = list(filter(None, text))
-        for relic in text:
+    unvaultedTexts = listify(fetch_and_parse(url, unvaultedXPath))
+    for relic in unvaultedTexts:
             relics[relic] = False
+    vaultedTexts = listify(fetch_and_parse(url, vaultedXPath))
+    for relic in vaultedTexts:
+            relics[relic] = True
         
        
     for text in vaultedTexts:
@@ -71,5 +55,19 @@ def scrapeForRelics(url, unvaultedXPath, vaultedXPath):
         for relic in text:
             relics[relic] = True
     print(relics)
-    
+
+def checkForUpdate():
+    #compare the relics in the sheet to a scraped list   
+    pass
+
+def listify(texts):
+    for text in texts:
+        #replace \xao (space) character with space
+        text = text.replace(u'\xa0', u' ')
+        #split to list when new line
+        text = text.splitlines()
+        #remove empty list elements
+        text = list(filter(None, text))
+    return text
+
 startup()

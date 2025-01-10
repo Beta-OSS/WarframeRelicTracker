@@ -5,22 +5,26 @@ from lxml import html
 from openpyxl import load_workbook
 from pathlib import Path
 import json
+import os
 
 def startup():
     check = Path("relicData.json")
     if check.exists():
         print("Checking for updates.")
         checkForUpdate()
+        os.system("start EXCEL.EXE warframeRelics.xlsx")
     else:
         print("Save file not found.")
         print("Creating save file.")
+        relics = scrapeForRelics()
+        saveRelicData(relics)
         try:
             loadRelicData()
+            print("Data saved.")
         except:
             print("An error has occured. Please try again.")
             exit
-        relics = scrapeForRelics()
-        saveRelicData(relics)
+        os.system("start EXCEL.EXE warframeRelics.xlsx")
     #if there is run checkUpdate()
     #if not skip straight to scrapeForRelics and save to json
 
@@ -145,7 +149,6 @@ def loadRelicData():
     wb = load_workbook('warframeRelics.xlsx')
     ws = wb.active
 
-    
     exFile = 'warframeRelics.xlsx'
 
     baseurl = 'https://warframe.fandom.com/wiki/'
@@ -159,7 +162,6 @@ def loadRelicData():
     webScrape(excelList, baseurl, ws)
 
     wb.save('warframeRelics.xlsx')
-    print("saved")
 
 if __name__=="__main__":
     startup()

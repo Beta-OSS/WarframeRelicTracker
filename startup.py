@@ -114,6 +114,7 @@ def fetch_and_parse(url, xpath_expression):
 
 def webScrape(excelList, baseurl, ws, relics):
     excount = 2
+    percentageCount = 0
     for cell in excelList:
         if type(cell[0]) == str:
             url = baseurl + cell[0] + "_" + cell[1]
@@ -123,7 +124,7 @@ def webScrape(excelList, baseurl, ws, relics):
 
             tree = html.fromstring(html_content)
 
-            print(f"\rProgress: {round(excount/len(relics)*100)}%", end="")
+            print(f"\rProgress: {round(percentageCount/len(excelList)*100)}%", end="")
             
             for i in range(6):
                 xpath = ('//*[@id="72656C6963table"]/tbody/tr[' + str(2+i) + ']/td[1]/a[2]')
@@ -144,7 +145,7 @@ def webScrape(excelList, baseurl, ws, relics):
                 elif i == 5:
                     ws['M' + str(excount)] = text
             excount+=1
-            
+            percentageCount+=1
     
 def loadRelicData(relics):
     wb = load_workbook('warframeRelics.xlsx')

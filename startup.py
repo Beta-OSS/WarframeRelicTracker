@@ -6,6 +6,7 @@ from openpyxl import load_workbook
 from pathlib import Path
 import json
 import os
+import sys
 
 def startup():
     check = Path("relicData.json")
@@ -16,19 +17,11 @@ def startup():
     else:
         print("Save file not found.")
         print("Creating save file.")
-        relics = scrapeForRelics()
-        saveRelicData(relics)
-        try:
-            loadRelicData()
-            print("Data saved.")
-        except:
-            print("An error has occured. Please try again.")
-            exit
+        checkForUpdate()
         os.system("start EXCEL.EXE warframeRelics.xlsx")
     #if there is run checkUpdate()
     #if not skip straight to scrapeForRelics and save to json
 
-    scrapeForRelics()
 
 def fetch_and_parse(url, xpath_expression):
     # Fetch the HTML content
@@ -78,13 +71,21 @@ def checkForUpdate():
     #(might be better to scrape data from the spreadsheet instead or get the list of relics and compair them to the excel)
     with open('relicData.json', 'r') as infile:
         dataset1 = json.load(infile)
-    dataset2 = scrapeForRelics()
+    relics = scrapeForRelics()
 
-    if dataset1 == dataset2:
+    if dataset1 == relics:
         print("Save file up to date.")
     else:
         print("Save file out of date.")
         print("Updating...")
+        try:
+            loadRelicData(relics)
+            print()
+            print("Data saved.")
+        except:
+            print()
+            print("An error has occured. Please try again.")
+            sys.exit()
         relics = scrapeForRelics()
         saveRelicData(relics)
 
@@ -111,7 +112,7 @@ def fetch_and_parse(url, xpath_expression):
     
     return [element.text_content() for element in elements]
 
-def webScrape(excelList, baseurl, ws):
+def webScrape(excelList, baseurl, ws, relics):
     excount = 2
     for cell in excelList:
         if type(cell[0]) == str:
@@ -122,7 +123,7 @@ def webScrape(excelList, baseurl, ws):
 
             tree = html.fromstring(html_content)
 
-            print(excount)
+            print(f"\rProgress: {round(excount/len(relics)*100)}%", end="")
             
             for i in range(6):
                 xpath = ('//*[@id="72656C6963table"]/tbody/tr[' + str(2+i) + ']/td[1]/a[2]')
@@ -145,7 +146,7 @@ def webScrape(excelList, baseurl, ws):
             excount+=1
             
     
-def loadRelicData():
+def loadRelicData(relics):
     wb = load_workbook('warframeRelics.xlsx')
     ws = wb.active
 
@@ -159,7 +160,7 @@ def loadRelicData():
     #.tolist() converts DataFrame to list of lists
     excelList = df_columns.values.tolist()
 
-    webScrape(excelList, baseurl, ws)
+    webScrape(excelList, baseurl, ws, relics)
 
     wb.save('warframeRelics.xlsx')
 

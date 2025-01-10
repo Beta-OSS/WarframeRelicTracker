@@ -3,3 +3,7 @@ requests
 bs4
 lxml
 openpyxl
+pathlib
+json
+os
+sys
